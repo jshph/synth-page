@@ -28,16 +28,19 @@ export default {
 
   },
   data: function() {
+    var reverb = new this.Tone.Reverb().toMaster();
+    reverb.decay = 1.4;
+    reverb.generate();
+
     return {
       'seq': null,
       'notes': [false , false, false, false],
       'synth': new this.Tone.Sampler({
         "C3": "http://127.0.0.1:3000/Yamaha-SY22-Full-Str-C2.mp3"
-      }).toMaster()
+      }).connect(reverb)
     }
   },
   methods: {
-
     toggleStep: function(idx) {
       this.notes.splice(idx, 1, this.notes[idx] ? false : true);
     },

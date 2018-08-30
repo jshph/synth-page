@@ -21,7 +21,7 @@ export default {
   },
   data: function() {
     return {
-      'chords': [['C3', 'E3'], ['D3', 'F3']],
+      'chords': [['A2', 'C3'], ['C3', 'B3'], ['G2', 'B2'], ['D3', 'F#3']],
       'Tone': Tone,
       'playing': false
     }
