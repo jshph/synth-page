@@ -13,11 +13,7 @@ export default {
   name: 'SynthTone',
   props: ['chord', 'Tone'],
   mounted: function() {
-    this.synth.set({
-      "envelope": {
-        "attack": 0.1
-      }
-    });
+    this.synth.release = 0.4
 
     this.Tone.Transport.start();
 
@@ -35,17 +31,22 @@ export default {
     return {
       'seq': null,
       'notes': [false , false, false, false],
-      'synth': new this.Tone.PolySynth(2, this.Tone.Synth).toMaster()
+      'synth': new this.Tone.Sampler({
+        "C3": "http://127.0.0.1:3000/Yamaha-SY22-Full-Str-C2.mp3"
+      }).toMaster()
     }
   },
   methods: {
+
     toggleStep: function(idx) {
       this.notes.splice(idx, 1, this.notes[idx] ? false : true);
     },
     initializeSeq: function() {
       return new this.Tone.Sequence(function(time, isNoteOn) {
         if (isNoteOn) {
-          this.synth.triggerAttackRelease(this.chord, "1n");
+          this.chord.forEach(function(key) {
+            this.synth.triggerAttackRelease(key, "1n");
+          }.bind(this));
         }
       }.bind(this), this.notes, "1n");
     }
