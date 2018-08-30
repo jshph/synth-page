@@ -1,6 +1,6 @@
 <template>
   <div class="synth-container">
-    <SynthTone v-for="tone in tones"/>
+    <SynthTone v-for="chord in chords" :chord="chord"/>
   </div>
 </template>
 
@@ -14,7 +14,7 @@ export default {
   },
   data: function() {
     return {
-      'tones': ['a', 'b', 'c']
+      'chords': [['C4', 'E4'], ['D4', 'F4']]
     }
   }
 }
