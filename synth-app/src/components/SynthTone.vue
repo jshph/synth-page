@@ -1,42 +1,57 @@
 <template>
   <div class="synth-tone">
     <div class="note-container">
-      <div v-for="note in notes" class="synth-note"></div>
+      <div v-for="(note, idx) in notes" class="synth-note" :class="{'step-on': note}" @click="toggleStep(idx)" ></div>
     </div>
   </div>
 </template>
 
 <script>
-import Tone from "../../node_modules/tone/build/Tone.min.js";
+import bus from "../bus.js"
 
 export default {
   name: 'SynthTone',
-  props: ['chord'],
+  props: ['chord', 'Tone'],
   mounted: function() {
-    var synth = new Tone.PolySynth(2, Tone.Synth).toMaster();
-    synth.set({
+    this.synth.set({
       "envelope": {
         "attack": 0.1
       }
     });
 
-    var seq = new Tone.Sequence(function(time, noteIdx) {
-      if (noteIdx) {
-        synth.triggerAttackRelease(["C4", "E4"], "4n");
-        synth.start();
-      }
-    }, this.notes, "4n").start();
+    this.Tone.Transport.start();
 
-    Tone.Transport.start();
+    bus.$on("play", function() {
+      this.seq = this.initializeSeq();
+      this.seq.start()
+    }.bind(this));
+
+    bus.$on("pause", function() {
+      this.seq.stop();
+    }.bind(this));
 
   },
   data: function() {
     return {
-      'notes': [false , true, true, false]
+      'seq': null,
+      'notes': [false , false, false, false],
+      'synth': new this.Tone.PolySynth(2, this.Tone.Synth).toMaster()
+    }
+  },
+  methods: {
+    toggleStep: function(idx) {
+      this.notes.splice(idx, 1, this.notes[idx] ? false : true);
+    },
+    initializeSeq: function() {
+      return new this.Tone.Sequence(function(time, isNoteOn) {
+        if (isNoteOn) {
+          this.synth.triggerAttackRelease(this.chord, "1n");
+        }
+      }.bind(this), this.notes, "1n");
     }
   }
 }
-</script>
+</script> 
 
 <style>
 .synth-note {
@@ -49,7 +64,7 @@ export default {
   transition: 0.2s;
 }
 
-.synth-note:hover {
+.synth-note:hover, .synth-note.step-on {
   opacity:1;
 }
 
